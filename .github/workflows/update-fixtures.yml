@@ -1,1 +1,32 @@
- 
+name: Update Football Fixtures
+
+on:
+  schedule:
+    # Runs at 00:00 UTC every Monday
+    - cron: '0 0 * * 1'
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  update-fixtures:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests google-api-python-client google-auth-httplib2 google-auth-oauthlib tzdata
+    
+    - name: Create credentials files
+      run: |
+        echo '${{ secrets.GOOGLE_CREDENTIALS }}' > credentials.json
+        echo '${{ secrets.GOOGLE_TOKEN }}' | base64 -d > token.pickle
+    
+    - name: Run fixture update script
+      run: python script.py 
